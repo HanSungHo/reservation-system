@@ -600,8 +600,8 @@ mvn spring-boot:run
 ```
 
 ```
-#주문상태 확인
-http localhost:8080/orders     # 모든 주문의 상태가 "배송됨"으로 확인
+#예약상태 확인
+http localhost:8080/orders     # 예약이 정상적으로 들어옴
 ```
 ![image](https://user-images.githubusercontent.com/34739884/124390496-e2e3ae80-dd26-11eb-80c6-fc91d211a164.JPG)
 
