@@ -426,36 +426,58 @@ server:
 
 ## 동기식 호출 과 Fallback 처리
 
-분석단계에서의 조건 중 하나로 주문(app)->결제(pay) 간의 호출은 동기식 일관성을 유지하는 트랜잭션으로 처리하기로 하였다. 호출 프로토콜은 이미 앞서 Rest Repository 에 의해 노출되어있는 REST 서비스를 FeignClient 를 이용하여 호출하도록 한다. 
+분석단계에서의 조건 중 하나로 예약(reservation)->결제(payment) 간의 호출은 동기식 일관성을 유지하는 트랜잭션으로 처리하기로 하였다. 호출 프로토콜은 이미 앞서 Rest Repository 에 의해 노출되어있는 REST 서비스를 FeignClient 를 이용하여 호출하도록 한다. 
 
 - 결제서비스를 호출하기 위하여 Stub과 (FeignClient) 를 이용하여 Service 대행 인터페이스 (Proxy) 를 구현 
 
 ```
-# (app) 결제이력Service.java
+# (reservation) PaymentService.java
 
-package fooddelivery.external;
+package reservation.system.external;
 
-@FeignClient(name="pay", url="http://localhost:8082")//, fallback = 결제이력ServiceFallback.class)
-public interface 결제이력Service {
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 
-    @RequestMapping(method= RequestMethod.POST, path="/결제이력s")
-    public void 결제(@RequestBody 결제이력 pay);
+import java.util.Date;
+
+@FeignClient(name="payment", url="${api.payment.url}")
+public interface PaymentService {
+
+    @RequestMapping(method= RequestMethod.POST, path="/payments")
+    public void pay(@RequestBody Payment payment);
 
 }
 ```
 
 - 주문을 받은 직후(@PostPersist) 결제를 요청하도록 처리
 ```
-# Order.java (Entity)
+# Reservation.java (Entity)
 
     @PostPersist
     public void onPostPersist(){
+        Reserved reserved = new Reserved();
+        BeanUtils.copyProperties(this, reserved);
 
-        fooddelivery.external.결제이력 pay = new fooddelivery.external.결제이력();
-        pay.setOrderId(getOrderId());
+        reserved.publishAfterCommit();
+
+        //Following code causes dependency to external APIs
+        // it is NOT A GOOD PRACTICE. instead, Event-Policy mapping is recommended.
+
+        reservation.system.external.Payment payment = new reservation.system.external.Payment();
+        // mappings goes here
+
+        System.out.println("##### id = " + this.getId() +"#####");
+        payment.setReserveId(this.getId());
+        payment.setSeatId(this.getSeatId());
+        payment.setName(this.getName());
+        payment.setPayType(this.getPayType());
+        payment.setReserveDate(this.getReserveDate());
+        payment.setExitDate(this.getExitDate());
         
-        Application.applicationContext.getBean(fooddelivery.external.결제이력Service.class)
-                .결제(pay);
+        ReservationApplication.applicationContext.getBean(reservation.system.external.PaymentService.class)
+            .pay(payment);
     }
 ```
 
