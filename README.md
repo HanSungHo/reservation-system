@@ -483,9 +483,10 @@ public interface PaymentService {
 
 - 동기식 호출에서는 호출 시간에 따른 타임 커플링이 발생하며, 결제 시스템이 장애가 나면 주문도 못받는다는 것을 확인:
 
-
 ```
 # 결제 (pay) 서비스를 잠시 내려놓음 (ctrl+c)
+```
+![image](https://user-images.githubusercontent.com/34739884/124388914-ede71080-dd1f-11eb-8d6d-43ee0c7674d1.JPG)
 
 #주문처리
 http localhost:8081/orders item=통닭 storeId=1   #Fail
@@ -498,7 +499,7 @@ mvn spring-boot:run
 #주문처리
 http localhost:8081/orders item=통닭 storeId=1   #Success
 http localhost:8081/orders item=피자 storeId=2   #Success
-```
+
 
 - 또한 과도한 요청시에 서비스 장애가 도미노 처럼 벌어질 수 있다. (서킷브레이커, 폴백 처리는 운영단계에서 설명한다.)
 
@@ -574,8 +575,6 @@ public class PolicyHandler{
 상점 시스템은 주문/결제와 완전히 분리되어있으며, 이벤트 수신에 따라 처리되기 때문에, 상점시스템이 유지보수로 인해 잠시 내려간 상태라도 주문을 받는데 문제가 없다:
 ```
 # 결제 서비스 (payment) 를 잠시 내려놓음 (ctrl+c)
-```
-![image](https://user-images.githubusercontent.com/34739884/124388914-ede71080-dd1f-11eb-8d6d-43ee0c7674d1.JPG)
 
 #주문처리
 http localhost:8081/orders item=통닭 storeId=1   #Success
@@ -591,7 +590,7 @@ mvn spring-boot:run
 #주문상태 확인
 http localhost:8080/orders     # 모든 주문의 상태가 "배송됨"으로 확인
 
-
+```
 
 # 운영
 
