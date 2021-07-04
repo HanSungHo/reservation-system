@@ -313,7 +313,7 @@ public class PolicyHandler{
     
 ```
 - 적용 후 REST API 의 테스트
-```
+
 # 예약 후 결과 (reservation)
 ![image](https://user-images.githubusercontent.com/34739884/124379735-ad719d80-dcf3-11eb-889f-2a089038477f.JPG)
 
@@ -323,7 +323,7 @@ http localhost:8083/주문처리s orderId=1
 # 주문 상태 확인
 http localhost:8081/orders/1
 
-```
+
 
 
 ## 폴리글랏 퍼시스턴스
