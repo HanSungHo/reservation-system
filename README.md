@@ -499,11 +499,14 @@ http POST localhost:8082/reservations name="Han" reserveDate="1" exitDate="2" pa
 cd 결제
 mvn spring-boot:run
 ```
+![image](https://user-images.githubusercontent.com/34739884/124389251-48cd3780-dd21-11eb-966d-daadf1abffcc.JPG)
+
 
 ```
 #주문처리
 http POST localhost:8082/reservations name="Han" reserveDate="1" exitDate="2" payType="card" seatId=1   #Success
 ```
+![image](https://user-images.githubusercontent.com/34739884/124389299-71553180-dd21-11eb-9c85-c1e75775ae41.JPG)
 
 - 또한 과도한 요청시에 서비스 장애가 도미노 처럼 벌어질 수 있다. (서킷브레이커, 폴백 처리는 운영단계에서 설명한다.)
 
