@@ -521,83 +521,91 @@ http POST localhost:8082/reservations name="Han" reserveDate="1" exitDate="2" pa
 - 이를 위하여 결제이력에 기록을 남긴 후에 곧바로 결제승인이 되었다는 도메인 이벤트를 카프카로 송출한다(Publish)
  
 ```
-package fooddelivery;
+package reservation.system;
+
+import javax.persistence.*;
+import org.springframework.beans.BeanUtils;
+import java.util.List;
+import java.util.Date;
 
 @Entity
-@Table(name="결제이력_table")
-public class 결제이력 {
+@Table(name="Payment_table")
+public class Payment {
 
  ...
-    @PrePersist
-    public void onPrePersist(){
-        결제승인됨 결제승인됨 = new 결제승인됨();
-        BeanUtils.copyProperties(this, 결제승인됨);
-        결제승인됨.publish();
+    @PostPersist
+    public void onPostPersist(){
+        Paid paid = new Paid();
+        BeanUtils.copyProperties(this, paid);
+        paid.publishAfterCommit();
     }
-
-}
 ```
 - 상점 서비스에서는 결제승인 이벤트에 대해서 이를 수신하여 자신의 정책을 처리하도록 PolicyHandler 를 구현한다:
 
 ```
-package fooddelivery;
+@StreamListener(KafkaProcessor.INPUT)
+    public void wheneverPaid_Check(@Payload Paid paid){
 
-...
+        if(!paid.validate()) return;
+        // Get Methods
+        Long reserveId = paid.getReserveId();
+        String name = paid.getName();
+        String reserveDate = paid.getReserveDate();
+        String exitDate = paid.getExitDate();
+        String payType = paid.getPayType();
+        Long seatId = paid.getSeatId();
 
-@Service
-public class PolicyHandler{
-
-    @StreamListener(KafkaProcessor.INPUT)
-    public void whenever결제승인됨_주문정보받음(@Payload 결제승인됨 결제승인됨){
-
-        if(결제승인됨.isMe()){
-            System.out.println("##### listener 주문정보받음 : " + 결제승인됨.toJson());
-            // 주문 정보를 받았으니, 요리를 슬슬 시작해야지..
+        Management management = new Management();
+        management.setSeatId(seatId);
+        // Management management = managementRepository.findBySeatId(seatId);
+        // if (management != null) {
+        //     if(management.getSeatStatus().equals("Emptied"))
+        //     {
+                management.setReserveId(reserveId);
+                management.setName(name);
+                management.setReserveDate(reserveDate);
+                management.setExitDate(exitDate);
+                management.setPayType(payType);
+                management.setSeatStatus("Reserved");
+                managementRepository.save(management);
+                
+                System.out.println("##### seat accepted by reservation reserve #####");
+                System.out.println("reserveId : " + reserveId);
+        //     }
+        //     else {
+        //         System.out.println("##### seat number is not emptied #####");
+        //         System.out.println("seatId : " + seatId);
+        //     }
+        // }
             
-        }
     }
-
-}
-
-```
-실제 구현을 하자면, 카톡 등으로 점주는 노티를 받고, 요리를 마친후, 주문 상태를 UI에 입력할테니, 우선 주문정보를 DB에 받아놓은 후, 이후 처리는 해당 Aggregate 내에서 하면 되겠다.:
-  
-```
-  @Autowired 주문관리Repository 주문관리Repository;
-  
-  @StreamListener(KafkaProcessor.INPUT)
-  public void whenever결제승인됨_주문정보받음(@Payload 결제승인됨 결제승인됨){
-
-      if(결제승인됨.isMe()){
-          카톡전송(" 주문이 왔어요! : " + 결제승인됨.toString(), 주문.getStoreId());
-
-          주문관리 주문 = new 주문관리();
-          주문.setId(결제승인됨.getOrderId());
-          주문관리Repository.save(주문);
-      }
-  }
-
+           
 ```
 
 상점 시스템은 주문/결제와 완전히 분리되어있으며, 이벤트 수신에 따라 처리되기 때문에, 상점시스템이 유지보수로 인해 잠시 내려간 상태라도 주문을 받는데 문제가 없다:
 ```
-# 결제 서비스 (payment) 를 잠시 내려놓음 (ctrl+c)
-
-#주문처리
-http localhost:8081/orders item=통닭 storeId=1   #Success
-http localhost:8081/orders item=피자 storeId=2   #Success
-
-#주문상태 확인
-http localhost:8080/orders     # 주문상태 안바뀜 확인
-
-#상점 서비스 기동
-cd 상점
-mvn spring-boot:run
-
-#주문상태 확인
-http localhost:8080/orders     # 모든 주문의 상태가 "배송됨"으로 확인
+# 수신 서비스 (management) 를 잠시 내려놓음 (ctrl+c)
+```
 
 ```
+#주문처리
+http POST localhost:8083/payments name="Han" reserveDate="1" reserveId=2 exitDate="2" payType="card" seatId=4   #Success
+```
+![image](https://user-images.githubusercontent.com/34739884/124390422-86808f00-dd26-11eb-9037-f70aca12f0e8.JPG)
+
+```
+#상점 서비스 기동
+cd management
+mvn spring-boot:run
+```
+
+```
+#주문상태 확인
+http localhost:8080/orders     # 모든 주문의 상태가 "배송됨"으로 확인
+```
+![image](https://user-images.githubusercontent.com/34739884/124390496-e2e3ae80-dd26-11eb-80c6-fc91d211a164.JPG)
+
+
 
 # 운영
 
