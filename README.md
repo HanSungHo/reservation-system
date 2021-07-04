@@ -324,7 +324,94 @@ public class PolicyHandler{
 - 예약 후 결과 (seat)
 ![image](https://user-images.githubusercontent.com/34739884/124388031-d148d980-dd1b-11eb-9e28-0fb848bee560.JPG)
 
+## Gateway
 
+- Gateway를 통해 서비스들의 진입점을 통일했다.
+
+```
+server:
+  port: 8088
+
+---
+
+spring:
+  profiles: default
+  cloud:
+    gateway:
+      routes:
+        - id: mypage
+          uri: http://localhost:8081
+          predicates:
+            - Path= /mypages/**
+        - id: reservation
+          uri: http://localhost:8082
+          predicates:
+            - Path=/reservations/**, /env/**, /reserve/** 
+        - id: payment
+          uri: http://localhost:8083
+          predicates:
+            - Path=/payments/**, /pay/**
+        - id: management
+          uri: http://localhost:8084
+          predicates:
+            - Path=/managements/** 
+        - id: seat
+          uri: http://localhost:8085
+          predicates:
+            - Path=/seats/** 
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins:
+              - "*"
+            allowedMethods:
+              - "*"
+            allowedHeaders:
+              - "*"
+            allowCredentials: true
+
+
+---
+
+spring:
+  profiles: docker
+  cloud:
+    gateway:
+      routes:
+        - id: mypage
+          uri: http://mypage:8080
+          predicates:
+            - Path= /mypages/**
+        - id: reservation
+          uri: http://reservation:8080
+          predicates:
+            - Path=/reservations/**, /env/**, /reserve/** 
+        - id: payment
+          uri: http://payment:8080
+          predicates:
+            - Path=/payments/**, /pay/** 
+        - id: management
+          uri: http://management:8080
+          predicates:
+            - Path=/managements/** 
+        - id: seat
+          uri: http://seat:8080
+          predicates:
+            - Path=/seats/** 
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins:
+              - "*"
+            allowedMethods:
+              - "*"
+            allowedHeaders:
+              - "*"
+            allowCredentials: true
+
+server:
+  port: 8080
+```
 
 ## 폴리글랏 퍼시스턴스
 
