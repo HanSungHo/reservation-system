@@ -314,8 +314,8 @@ public class PolicyHandler{
 ```
 - 적용 후 REST API 의 테스트
 ```
-# app 서비스의 주문처리
-http localhost:8081/orders item="통닭"
+# 예약 후 결과 (reservation)
+![image](https://user-images.githubusercontent.com/34739884/124379735-ad719d80-dcf3-11eb-889f-2a089038477f.JPG)
 
 # store 서비스의 배달처리
 http localhost:8083/주문처리s orderId=1
