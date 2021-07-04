@@ -605,6 +605,19 @@ http localhost:8080/orders     # 예약이 정상적으로 들어옴
 ```
 ![image](https://user-images.githubusercontent.com/34739884/124390496-e2e3ae80-dd26-11eb-80c6-fc91d211a164.JPG)
 
+## CQRS
+- mypage 서비스를 구현하여 아래와 같이 view 가 출력된다.
+
+```
+#예약 후 mypage 확인
+```
+![image](https://user-images.githubusercontent.com/34739884/124390830-43bfb680-dd28-11eb-994e-b028f7bb7cb3.JPG)
+
+```
+#좌석 반납 후 mypage 확인
+```
+![image](https://user-images.githubusercontent.com/34739884/124390835-52a66900-dd28-11eb-8694-ef3a6acf4ead.JPG)
+
 
 
 # 운영
