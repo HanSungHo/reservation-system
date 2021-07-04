@@ -312,17 +312,17 @@ public class PolicyHandler{
     }
     
 ```
-- 적용 후 REST API 의 테스트
+- 예약 후 결과 (reservation)
+![image](https://user-images.githubusercontent.com/34739884/124387984-9050c500-dd1b-11eb-8ae8-54f2ec7c1935.JPG)
 
-# 예약 후 결과 (reservation)
-![image](https://user-images.githubusercontent.com/34739884/124379735-ad719d80-dcf3-11eb-889f-2a089038477f.JPG)
+- 예약 후 결과 (payment)
+![image](https://user-images.githubusercontent.com/34739884/124387998-a3639500-dd1b-11eb-9f07-30ecf2fbf96e.JPG)
 
-# store 서비스의 배달처리
-http localhost:8083/주문처리s orderId=1
+- 예약 후 결과 (management)
+![image](https://user-images.githubusercontent.com/34739884/124388023-c5f5ae00-dd1b-11eb-8705-474b0adbfea2.JPG)
 
-# 주문 상태 확인
-http localhost:8081/orders/1
-
+- 예약 후 결과 (seat)
+![image](https://user-images.githubusercontent.com/34739884/124388031-d148d980-dd1b-11eb-9e28-0fb848bee560.JPG)
 
 
 
