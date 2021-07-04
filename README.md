@@ -176,21 +176,36 @@ python policy-handler.py
 - 각 서비스내에 도출된 핵심 Aggregate Root 객체를 Entity 로 선언하였다: (예시는 pay 마이크로 서비스). 이때 가능한 현업에서 사용하는 언어 (유비쿼터스 랭귀지)를 그대로 사용하려고 노력했다. 하지만, 일부 구현에 있어서 영문이 아닌 경우는 실행이 불가능한 경우가 있기 때문에 계속 사용할 방법은 아닌것 같다. (Maven pom.xml, Kafka의 topic id, FeignClient 의 서비스 id 등은 한글로 식별자를 사용하는 경우 오류가 발생하는 것을 확인하였다)
 
 ```
-package fooddelivery;
+package reservation.system;
 
 import javax.persistence.*;
 import org.springframework.beans.BeanUtils;
 import java.util.List;
+import java.util.Date;
 
 @Entity
-@Table(name="결제이력_table")
-public class 결제이력 {
+@Table(name="Payment_table")
+public class Payment {
 
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)
     private Long id;
-    private String orderId;
-    private Double 금액;
+    private String payType;
+    private Long reserveId;
+    private String reserveDate;
+    private String exitDate;
+    private String name;
+    private Long seatId;
+
+    @PostPersist
+    public void onPostPersist(){
+        Paid paid = new Paid();
+        BeanUtils.copyProperties(this, paid);
+        paid.publishAfterCommit();
+
+
+    }
+
 
     public Long getId() {
         return id;
@@ -199,32 +214,103 @@ public class 결제이력 {
     public void setId(Long id) {
         this.id = id;
     }
-    public String getOrderId() {
-        return orderId;
+    public String getPayType() {
+        return payType;
     }
 
-    public void setOrderId(String orderId) {
-        this.orderId = orderId;
+    public void setPayType(String payType) {
+        this.payType = payType;
     }
-    public Double get금액() {
-        return 금액;
-    }
-
-    public void set금액(Double 금액) {
-        this.금액 = 금액;
+    public Long getReserveId() {
+        return reserveId;
     }
 
+    public void setReserveId(Long reserveId) {
+        this.reserveId = reserveId;
+    }
+    public String getReserveDate() {
+        return reserveDate;
+    }
+
+    public void setReserveDate(String reserveDate) {
+        this.reserveDate = reserveDate;
+    }
+    public String getExitDate() {
+        return exitDate;
+    }
+
+    public void setExitDate(String exitDate) {
+        this.exitDate = exitDate;
+    }
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+    public Long getSeatId() {
+        return seatId;
+    }
+
+    public void setSeatId(Long seatId) {
+        this.seatId = seatId;
+    }
 }
+
 
 ```
 - Entity Pattern 과 Repository Pattern 을 적용하여 JPA 를 통하여 다양한 데이터소스 유형 (RDB or NoSQL) 에 대한 별도의 처리가 없도록 데이터 접근 어댑터를 자동 생성하기 위하여 Spring Data REST 의 RestRepository 를 적용하였다
 ```
-package fooddelivery;
+package reservation.system;
 
-import org.springframework.data.repository.PagingAndSortingRepository;
+import reservation.system.config.kafka.KafkaProcessor;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.stream.annotation.StreamListener;
+import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.stereotype.Service;
 
-public interface 결제이력Repository extends PagingAndSortingRepository<결제이력, Long>{
-}
+@Service
+public class PolicyHandler{
+    @Autowired ManagementRepository managementRepository;
+
+    @StreamListener(KafkaProcessor.INPUT)
+    public void wheneverPaid_Check(@Payload Paid paid){
+
+        if(!paid.validate()) return;
+        // Get Methods
+        Long reserveId = paid.getReserveId();
+        String name = paid.getName();
+        String reserveDate = paid.getReserveDate();
+        String exitDate = paid.getExitDate();
+        String payType = paid.getPayType();
+        Long seatId = paid.getSeatId();
+
+        Management management = managementRepository.findBySeatId(seatId);
+        if (management != null) {
+            if(management.getSeatStatus().equals("Emptied"))
+            {
+                management.setReserveId(reserveId);
+                management.setName(name);
+                management.setReserveDate(reserveDate);
+                management.setExitDate(exitDate);
+                management.setPayType(payType);
+                management.setSeatStatus("Reserved");
+                managementRepository.save(management);
+                
+                System.out.println("##### seat accepted by reservation reserve #####");
+                System.out.println("reserveId : " + reserveId);
+            }
+            else {
+                System.out.println("##### seat number is not emptied #####");
+                System.out.println("seatId : " + seatId);
+            }
+        }
+            
+    }
+    
 ```
 - 적용 후 REST API 의 테스트
 ```
