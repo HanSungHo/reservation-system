@@ -823,46 +823,30 @@ watch -n 1 kubectl get pod -n ns-seatsystem
 ![성공률](https://user-images.githubusercontent.com/34739884/124418085-9daa9580-dd95-11eb-8ec7-eebdd17a16e7.JPG)
 
 
-## 무정지 재배포
+## Self-healing (Liveness Probe)
 
 * 먼저 무정지 재배포가 100% 되는 것인지 확인하기 위해서 Autoscaler 이나 CB 설정을 제거함
 
+- liveness 설정.
+![liveness](https://user-images.githubusercontent.com/34739884/124418301-2295af00-dd96-11eb-9f3e-185a62ccff52.JPG)
+
+
+
 - seige 로 배포작업 직전에 워크로드를 모니터링 함.
 ```
-siege -c100 -t120S -r10 --content-type "application/json" 'http://localhost:8081/orders POST {"item": "chicken"}'
-
-** SIEGE 4.0.5
-** Preparing 100 concurrent users for battle.
-The server is now under siege...
-
-HTTP/1.1 201     0.68 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     0.68 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     0.70 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     0.70 secs:     207 bytes ==> POST http://localhost:8081/orders
-:
-
+siege -c60 -t60S -r10 -v http get http://reservation:8080/reservations
 ```
 
-- 새버전으로의 배포 시작
-```
-kubectl set image ...
-```
+- 100% 밑으로 떨어진 결과.
 
-- seige 의 화면으로 넘어가서 Availability 가 100% 미만으로 떨어졌는지 확인
-```
-Transactions:		        3078 hits
-Availability:		       70.45 %
-Elapsed time:		       120 secs
-Data transferred:	        0.34 MB
-Response time:		        5.60 secs
-Transaction rate:	       17.15 trans/sec
-Throughput:		        0.01 MB/sec
-Concurrency:		       96.02
+![liveness 결과](https://user-images.githubusercontent.com/34739884/124419108-d9465f00-dd97-11eb-9322-24395de026e2.JPG)
 
-```
-배포기간중 Availability 가 평소 100%에서 70% 대로 떨어지는 것을 확인. 원인은 쿠버네티스가 성급하게 새로 올려진 서비스를 READY 상태로 인식하여 서비스 유입을 진행한 것이기 때문. 이를 막기위해 Readiness Probe 를 설정함:
 
-```
+- Restart 증가 확인
+![restart 증가](https://user-images.githubusercontent.com/34739884/124419150-f2e7a680-dd97-11eb-9d81-8b3ab7a29bd5.JPG)
+
+
+
 # deployment.yaml 의 readiness probe 의 설정:
 
 
