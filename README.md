@@ -757,22 +757,11 @@ EOF
 kubectl exec -it siege-88f7fdd8d-ktn5h -n istio-test-ns -- /bin/bash
 ```
 
-- 피호출 서비스(결제:pay) 의 임의 부하 처리 - 400 밀리에서 증감 220 밀리 정도 왔다갔다 하게
-```
-# (pay) 결제이력.java (Entity)
+- 정상 동작일떄 확인
+- siege -c1 -t30S -v --content-type "application/json" 'http://20.194.110.223:8080/reservations POST {"seatId": "1", "name": "han"}'
 
-    @PrePersist
-    public void onPrePersist(){  //결제이력을 저장한 후 적당한 시간 끌기
+![image](https://user-images.githubusercontent.com/34739884/124415436-d5164380-dd8f-11eb-963e-2d3b4cf7ea75.JPG)
 
-        ...
-        
-        try {
-            Thread.currentThread().sleep((long) (400 + Math.random() * 220));
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-```
 
 * 부하테스터 siege 툴을 통한 서킷 브레이커 동작 확인:
 - 동시사용자 100명
