@@ -666,12 +666,16 @@ kubectl expose deploy seat --type="ClusterIP" --port=8080 -n ns-seatsystem
 - 결과
 ![image](https://user-images.githubusercontent.com/34739884/124408972-5a92f700-dd82-11eb-98da-c4dfa91cfb57.JPG)
 
+
 ## ConfigMap
 
 - reservation의 deployment.yml
+
 ![image](https://user-images.githubusercontent.com/34739884/124409253-e7d64b80-dd82-11eb-9578-3cf637ae2c5b.JPG)
 
+
 - 결과 확인
+
 ![image](https://user-images.githubusercontent.com/34739884/124409286-ffadcf80-dd82-11eb-8dce-dcd5fe734d4c.JPG)
 
 
