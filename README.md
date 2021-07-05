@@ -699,7 +699,7 @@ $ kubectl get pod -n istio-system
 ![image](https://user-images.githubusercontent.com/34739884/124413927-9d59cc80-dd8c-11eb-969c-a34bad396ff5.JPG)
 
 
-- 3. namespace 및 label 설정
+- 3.namespace 및 label 설정
 
 ```
 kubectl create namespace istio-test-ns
@@ -710,7 +710,7 @@ kubectl get namespace istio-test-ns -o yaml
 
 ```
 
-- 4. namespace로 재배포
+- 4.namespace로 재배포
 
 ```
 kubectl create deploy gateway --image=user21.azurecr.io/gateway:latest -n istio-test-ns
@@ -730,6 +730,32 @@ kubectl expose deploy seat --type="ClusterIP" --port=8080 -n istio-test-ns
 
 ```
 
+- 결과확인
+![image](https://user-images.githubusercontent.com/34739884/124414506-dba3bb80-dd8d-11eb-82b5-e645a0a0323c.JPG)
+
+- 5.Circuit Breaker Destination Rule 생성
+
+```
+kubectl apply -f - <<EOF
+  apiVersion: networking.istio.io/v1alpha3
+  kind: DestinationRule
+  metadata:
+    name: dr-httpbin
+    namespace: istio-test-ns
+  spec:
+    host: gateway
+    trafficPolicy:
+      connectionPool:
+        http:
+          http1MaxPendingRequests: 1
+          maxRequestsPerConnection: 1
+EOF
+```
+- 5-1. Siege Client 접속
+
+```
+
+```
 
 - 피호출 서비스(결제:pay) 의 임의 부하 처리 - 400 밀리에서 증감 220 밀리 정도 왔다갔다 하게
 ```
