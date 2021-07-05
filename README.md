@@ -412,6 +412,9 @@ spring:
 server:
   port: 8080
 ```
+- gateway port 확인
+![image](https://user-images.githubusercontent.com/34739884/124408972-5a92f700-dd82-11eb-98da-c4dfa91cfb57.JPG)
+
 
 ## 폴리글랏 퍼시스턴스
 
@@ -659,6 +662,9 @@ kubectl expose deploy gateway --type="LoadBalancer" --port=8080 -n ns-seatsystem
 kubectl expose deploy management --type="ClusterIP" --port=8080 -n ns-seatsystem
 kubectl expose deploy seat --type="ClusterIP" --port=8080 -n ns-seatsystem
 ```
+
+- 결과
+![image](https://user-images.githubusercontent.com/34739884/124408972-5a92f700-dd82-11eb-98da-c4dfa91cfb57.JPG)
 
 
 각 구현체들은 각자의 source repository 에 구성되었고, 사용한 CI/CD 플랫폼은 GCP를 사용하였으며, pipeline build script 는 각 프로젝트 폴더 이하에 cloudbuild.yml 에 포함되었다.
