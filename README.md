@@ -754,7 +754,7 @@ EOF
 - 5-1. Siege Client 접속
 
 ```
-
+kubectl exec -it siege-88f7fdd8d-ktn5h -n istio-test-ns -- /bin/bash
 ```
 
 - 피호출 서비스(결제:pay) 의 임의 부하 처리 - 400 밀리에서 증감 220 밀리 정도 왔다갔다 하게
