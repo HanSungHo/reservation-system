@@ -24,10 +24,12 @@ public class PolicyHandler{
         String payType = paid.getPayType();
         Long seatId = paid.getSeatId();
 
-        Management management = managementRepository.findBySeatId(seatId);
-        if (management != null) {
-            if(management.getSeatStatus().equals("Emptied"))
-            {
+        Management management = new Management();
+        management.setSeatId(seatId);
+        // Management management = managementRepository.findBySeatId(seatId);
+        // if (management != null) {
+        //     if(management.getSeatStatus().equals("Emptied"))
+        //     {
                 management.setReserveId(reserveId);
                 management.setName(name);
                 management.setReserveDate(reserveDate);
@@ -38,12 +40,12 @@ public class PolicyHandler{
                 
                 System.out.println("##### seat accepted by reservation reserve #####");
                 System.out.println("reserveId : " + reserveId);
-            }
-            else {
-                System.out.println("##### seat number is not emptied #####");
-                System.out.println("seatId : " + seatId);
-            }
-        }
+        //     }
+        //     else {
+        //         System.out.println("##### seat number is not emptied #####");
+        //         System.out.println("seatId : " + seatId);
+        //     }
+        // }
             
     }
     @StreamListener(KafkaProcessor.INPUT)

@@ -65,13 +65,17 @@ public class MypageViewHandler {
     }
 
     @StreamListener(KafkaProcessor.INPUT)
-    public void whenChecked_then_UPDATE_2(@Payload Exited exited) {
+    public void whenExtied_then_UPDATE_2(@Payload Exited exited) {
         try {
             if (!exited.validate()) return;
                 // view 객체 조회
             List<Mypage> mypageList = mypageRepository.findBySeatId(exited.getSeatId());
             for(Mypage mypage : mypageList){
                 // view 객체에 이벤트의 eventDirectValue 를 set 함
+                mypage.setReserveId(0L);
+                mypage.setName("");
+                mypage.setReserveDate("");
+                mypage.setExitDate("");
                 mypage.setPayType("");
                 mypage.setSeatId(0L);
                 // mypage.setPayType(checked.getPayType());
