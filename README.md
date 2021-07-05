@@ -624,6 +624,42 @@ http localhost:8080/orders     # 예약이 정상적으로 들어옴
 
 ## CI/CD 설정
 
+- git clone
+
+```
+git clone https://github.com/HanSungHo/reservation-system.git
+```
+
+- 각 폴더에서 Dockerlizing, ACR(Azure Container Registry에 Docker Image Push하기
+```
+az acr build --registry user21 --image user21.azurecr.io/reservation:latest .
+az acr build --registry user21 --image user21.azurecr.io/payment:latest .
+az acr build --registry user21 --image user21.azurecr.io/gateway:latest .
+az acr build --registry user21 --image user21.azurecr.io/mypage:latest .
+az acr build --registry user21 --image user21.azurecr.io/management:latest .
+az acr build --registry user21 --image user21.azurecr.io/seat:latest .
+```
+
+- deploy 하기
+```
+kubectl create deploy reservation --image=user21.azurecr.io/reservation:latest -n ns-seatsystem
+kubectl create deploy payment --image=user21.azurecr.io/payment:latest -n ns-seatsystem
+kubectl create deploy gateway --image=user21.azurecr.io/gateway:latest -n ns-seatsystem
+kubectl create deploy mypage --image=user21.azurecr.io/mypage:latest -n ns-seatsystem
+kubectl create deploy management --image=user21.azurecr.io/management:latest -n ns-seatsystem
+kubectl create deploy seat --image=user21.azurecr.io/seat:latest -n ns-seatsystem
+```
+
+- 서비스 생성 하기
+```
+kubectl expose deploy reservation --type="ClusterIP" --port=8080 -n ns-seatsystem
+kubectl expose deploy payment --type="ClusterIP" --port=8080 -n ns-seatsystem
+kubectl expose deploy mypage --type="ClusterIP" --port=8080 -n ns-seatsystem
+kubectl expose deploy gateway --type="LoadBalancer" --port=8080 -n ns-seatsystem
+kubectl expose deploy management --type="ClusterIP" --port=8080 -n ns-seatsystem
+kubectl expose deploy seat --type="ClusterIP" --port=8080 -n ns-seatsystem
+```
+
 
 각 구현체들은 각자의 source repository 에 구성되었고, 사용한 CI/CD 플랫폼은 GCP를 사용하였으며, pipeline build script 는 각 프로젝트 폴더 이하에 cloudbuild.yml 에 포함되었다.
 
