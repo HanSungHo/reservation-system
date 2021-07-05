@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: seat
-          image: username/seat:latest
+          image: user21.azurecr.io/seat:latest
           ports:
             - containerPort: 8080
           readinessProbe:

@@ -16,19 +16,19 @@ spec:
     spec:
       containers:
         - name: reservation
-          image: username/reservation:latest
+          image: user21.azurecr.io/reservation:latest
           ports:
             - containerPort: 8080
           env:
             - name: DB_IP
               valueFrom:
                 configMapKeyRef:
-                  name: cm-carsharing
+                  name: cm-seatsystem
                   key: DB_IP
             - name: DB_SERVICE_NAME
               valueFrom:
                 configMapKeyRef:
-                  name: cm-carsharing
+                  name: cm-seatsystem
                   key: DB_SERVICE_NAME         
           # readinessProbe:
           #   httpGet:
