@@ -869,12 +869,15 @@ siege -c1 -t60S -r10 -v http get http://reservation:8080/reservations
 ```
 
 - 기존의 pod 종료
+
 ![하나종료](https://user-images.githubusercontent.com/34739884/124419859-4dcdcd80-dd99-11eb-8667-fca1ae429581.JPG)
 
 - 새 pod로 교체
+
 ![새것만 남음](https://user-images.githubusercontent.com/34739884/124419867-50302780-dd99-11eb-9ece-87cce2bd0ca6.JPG)
 
 - 100% 수행결과
+
 ![100%결과](https://user-images.githubusercontent.com/34739884/124419875-532b1800-dd99-11eb-97c7-43529f6c427e.JPG)
 
 
